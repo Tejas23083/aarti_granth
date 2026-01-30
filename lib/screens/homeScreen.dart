@@ -1,239 +1,247 @@
+import 'package:aarti_granth/screens/app_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  static final List<Map<String, dynamic>> gods = [
-    {"name": "Ganesh", "image": "assets/images/Ganesh.png"},
-    {"name": "Shiva", "image": "assets/images/Shiva.png"},
-    {"name": "Krishna", "image": "assets/images/Krishna.png"},
-    {"name": "Durga", "image": "assets/images/Durga.png"},
-    {"name": "Hanuman", "image": "assets/images/Hanuman.png"},
-    {"name": "Lakshmi", "image": "assets/images/Lakshmi.png"},
-    {"name": "Saraswati", "image": "assets/images/Saraswati.png"},
-    {"name": "Vishnu", "image": "assets/images/Vishnu.png"},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFB74D),
+      drawer: const AppDrawer(),
 
-      drawer: Drawer(
-        backgroundColor: const Color(0xFF090908),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFF3E0), Color(0xFFFFB74D)],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFFE8C5),
+              Color(0xFFFFB74D),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+
+              // 🌟 ANIMATED APP BAR
+              SliverAppBar(
+                pinned: true,
+                elevation: 0,
+                expandedHeight: 110,
+                backgroundColor: Colors.transparent,
+
+                iconTheme: const IconThemeData(
+                  color: Color(0xFF3A2A1A),
                 ),
-              ),
-              child: Column(
-                children: const [
-                  CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 35,
-                      color: Color(0xFFB8860B),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Devotee",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined),
+                    onPressed: () {},
                   ),
                 ],
+
+                // ❌ REMOVE THIS (important)
+                // title: const Text("AartiGranth"),
+
+                // ✅ KEEP ONLY THIS
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  titlePadding: const EdgeInsets.only(bottom: 12),
+                  title: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        "AartiGranth",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF3A2A1A),
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        "आरतीग्रन्थ",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF6D4C41),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+
+              // 📦 BODY CONTENT
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      _searchBar(),
+                      const SizedBox(height: 20),
+                      _sectionTitle("Deities"),
+                      const SizedBox(height: 12),
+                      _deitiesRow(),
+                      const SizedBox(height: 20),
+                      _aartiOfDay(),
+                      const SizedBox(height: 20),
+                      _sectionTitle("Popular Aartis"),
+                      const SizedBox(height: 10),
+                      _aartiTile("Sukhkarta Dukhaharta"),
+                      _aartiTile("Om Jai Shiv Omkara"),
+                      _aartiTile("Hanuman Chalisa"),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 🔍 SEARCH
+  static Widget _searchBar() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: "Search Aarti or God name",
+            border: InputBorder.none,
+            icon: Icon(Icons.search),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _sectionTitle(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF3A2A1A),
+      ),
+    );
+  }
+
+  static Widget _deitiesRow() {
+    return SizedBox(
+      height: 120,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: const [
+          _GodCard("Ganesh", "assets/images/Ganesh.png"),
+          _GodCard("Shiva", "assets/images/Shiva.png"),
+          _GodCard("Hanuman", "assets/images/Hanuman.png"),
+          _GodCard("Durga", "assets/images/Durga.png"),
+          _GodCard("Vishnu", "assets/images/Vishnu.png"),
+          _GodCard("Saraswati", "assets/images/Saraswati.png"),
+          _GodCard("Lakshmi", "assets/images/Lakshmi.png"),
+          _GodCard("Krishna", "assets/images/Krishna.png"),
+        ],
+      ),
+    );
+  }
+
+  static Widget _aartiOfDay() {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Aarti of the Day",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              "Om Jai Jagdish Hare",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF3A2A1A),
               ),
             ),
-            const SizedBox(height: 30),
-            ListTile(
-              leading: const Icon(Icons.person, color: Colors.white),
-              title: const Text(
-                "Profile",
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings, color: Colors.white),
-              title: const Text(
-                "Settings",
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () => Navigator.pop(context),
-            ),
-            const Spacer(),
-            const Divider(color: Colors.white30),
-            const Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Text(
-                "Arthigranth v1.0",
-                style: TextStyle(color: Colors.white54),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFF9800),
+                ),
+                child: const Text("Read"),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
 
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF6D4C41),
-        title: const Text(
-          "Arthigranth",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        physics: const BouncingScrollPhysics(),
-        itemCount: gods.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-          childAspectRatio: 0.85,
-        ),
-        itemBuilder: (context, index) {
-          return LuxuryCard(
-            name: gods[index]["name"],
-            imagePath: gods[index]["image"],
-          );
-        },
+  static Widget _aartiTile(String title) {
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        title: Text(title),
+        trailing: const Icon(Icons.chevron_right),
       ),
     );
   }
 }
 
-class LuxuryCard extends StatefulWidget {
+// 🕉️ GOD CARD
+class _GodCard extends StatelessWidget {
   final String name;
-  final String imagePath;
+  final String image;
 
-  const LuxuryCard({super.key, required this.name, required this.imagePath});
-
-  @override
-  State<LuxuryCard> createState() => _LuxuryCardState();
-}
-
-class _LuxuryCardState extends State<LuxuryCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _glowAnimation;
-  bool _pressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-
-    _glowAnimation = Tween<double>(begin: 4, end: 15).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  const _GodCard(this.name, this.image);
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _glowAnimation,
-      builder: (context, child) {
-        return GestureDetector(
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          child: AnimatedScale(
-            duration: const Duration(milliseconds: 200),
-            scale: _pressed ? 0.95 : 1,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: const Color(0xFFFFD700), width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFFD700).withOpacity(0.6),
-                    blurRadius: _glowAnimation.value,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(23),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.asset(widget.imagePath, fit: BoxFit.cover),
-                    ),
-
-                    // ✨ SHIMMER SWEEP
-                    Positioned.fill(
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.transparent,
-                        highlightColor: const Color(
-                          0xFFFFD700,
-                        ).withOpacity(0.35),
-                        direction: ShimmerDirection.ltr,
-                        period: const Duration(seconds: 5),
-                        child: Container(color: Colors.white),
-                      ),
-                    ),
-
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 70,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.transparent, Colors.black87],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Positioned(
-                      bottom: 20,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: Text(
-                          widget.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return Container(
+      width: 90,
+      margin: const EdgeInsets.only(right: 12),
+      child: Column(
+        children: [
+          Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 70,
+              child: Image.asset(image, fit: BoxFit.cover),
             ),
           ),
-        );
-      },
+          const SizedBox(height: 6),
+          Text(
+            name,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF3A2A1A),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
