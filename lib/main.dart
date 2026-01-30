@@ -1,5 +1,6 @@
-import 'package:aarti_granth/splash/SplashScreen.dart';
 import 'package:flutter/material.dart';
+
+import 'screens/HomeScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,13 +11,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/home': (context) => const HomeScreen(), // your home screen
-      },
-      initialRoute: '/',
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, home: HomeScreen());
   }
 }
