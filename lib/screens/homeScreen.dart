@@ -1,11 +1,48 @@
-import 'package:aarti_granth/screens/SettingsScreen.dart';
-import '../l10n/app_localizations.dart';
-import 'app_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
+import '../providers/language_provider.dart';
+import '../models/god_model.dart';
+import '../services/firestore_service.dart';
 
-class HomeScreen extends StatelessWidget {
+import 'app_drawer.dart';
+import 'SettingsScreen.dart';
+import 'GodListScreen.dart'; // ✅ ADD THIS
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<GodModel>> _godsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGods();
+  }
+
+  void _loadGods() {
+    final langCode =
+        context.read<LanguageProvider>().locale.languageCode;
+
+    // 🔥 ONLY 5 GODS ON HOME
+    _godsFuture = FirestoreService().getGods(
+      languageCode: langCode,
+      limit: 5,
+    );
+  }
+
+  Future<void> _onRefresh() async {
+    setState(() {
+      _loadGods();
+    });
+    await _godsFuture;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +50,8 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       drawer: const AppDrawer(),
-
       body: Container(
+        // ❌ DO NOT CHANGE – AS REQUESTED
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -26,106 +63,125 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: CustomScrollView(
-            slivers: [
+          child: RefreshIndicator(
+            color: Colors.orange,
+            onRefresh: _onRefresh,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
 
-              // 🌟 APP BAR
-              SliverAppBar(
-                pinned: true,
-                elevation: 0,
-                expandedHeight: 110,
-                backgroundColor: Colors.transparent,
-
-                iconTheme: const IconThemeData(
-                  color: Color(0xFF3A2A1A),
-                ),
-
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.settings_outlined),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => const SettingsScreen(),
-                          transitionsBuilder: (_, animation, __, child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(1.0, 0.0),
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: child,
-                            );
-                          },
-                        ),
-                      );
-                    },
+                // 🌟 APP BAR
+                SliverAppBar(
+                  pinned: true,
+                  elevation: 0,
+                  expandedHeight: 110,
+                  backgroundColor: Colors.transparent,
+                  iconTheme: const IconThemeData(
+                    color: Color(0xFF3A2A1A),
                   ),
-                ],
-
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  titlePadding: const EdgeInsets.only(bottom: 12),
-                  title: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text(
-                        "AartiGranth",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3A2A1A),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.settings_outlined),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                  flexibleSpace: FlexibleSpaceBar(
+                    centerTitle: true,
+                    titlePadding: const EdgeInsets.only(bottom: 12),
+                    title: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Text(
+                          "AartiGranth",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF3A2A1A),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        "आरतीग्रन्थ",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6D4C41),
+                        SizedBox(height: 2),
+                        Text(
+                          "आरतीग्रन्थ",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6D4C41),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // 📦 BODY
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      _searchBar(loc),
-                      const SizedBox(height: 20),
+                // 📦 BODY
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate(
+                      [
+                        _searchBar(loc),
+                        const SizedBox(height: 10),
 
-                      _sectionTitle(loc.deities),
-                      const SizedBox(height: 12),
-                      _deitiesRow(),
+                        // 🔱 DEITIES + SEE ALL
+                        Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                          children: [
+                            _sectionTitle(loc.deities),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const GodListScreen(),
+                                  ),
+                                );
 
-                      const SizedBox(height: 20),
-                      _aartiOfDay(loc),
+                              },
+                              child: const Text(
+                                "See all",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF3A2A1A),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
 
-                      const SizedBox(height: 20),
-                      _sectionTitle(loc.popularAartis),
-                      const SizedBox(height: 10),
+                        _deitiesFromFirestore(),
 
-                      _aartiTile(loc.sukhkarta),
-                      _aartiTile(loc.omJaiShiv),
-                      _aartiTile(loc.hanumanChalisa),
-                    ],
+                        const SizedBox(height: 24),
+                        _aartiOfDay(loc),
+
+                        const SizedBox(height: 24),
+                        _sectionTitle(loc.popularAartis),
+                        const SizedBox(height: 10),
+
+                        _aartiTile(loc.sukhkarta),
+                        _aartiTile(loc.omJaiShiv),
+                        _aartiTile(loc.hanumanChalisa),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // 🔍 SEARCH
-  static Widget _searchBar(AppLocalizations loc) {
+  // 🔍 SEARCH BAR
+  Widget _searchBar(AppLocalizations loc) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -144,7 +200,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget _sectionTitle(String text) {
+  Widget _sectionTitle(String text) {
     return Text(
       text,
       style: const TextStyle(
@@ -155,26 +211,43 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget _deitiesRow() {
+  // 🔥 GODS FROM FIRESTORE
+  Widget _deitiesFromFirestore() {
     return SizedBox(
-      height: 120,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: const [
-          _GodCard("Ganesh", "assets/images/Ganesh.png"),
-          _GodCard("Shiva", "assets/images/Shiva.png"),
-          _GodCard("Hanuman", "assets/images/Hanuman.png"),
-          _GodCard("Durga", "assets/images/Durga.png"),
-          _GodCard("Vishnu", "assets/images/Vishnu.png"),
-          _GodCard("Saraswati", "assets/images/Saraswati.png"),
-          _GodCard("Lakshmi", "assets/images/Lakshmi.png"),
-          _GodCard("Krishna", "assets/images/Krishna.png"),
-        ],
+      height: 200,
+      child: FutureBuilder<List<GodModel>>(
+        future: _godsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
+            return const Center(
+                child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No deities found"));
+          }
+
+          final gods = snapshot.data!;
+
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: gods.length,
+            itemBuilder: (context, index) {
+              final god = gods[index];
+              return _GodCard(
+                name: god.name,
+                image: "assets/images/${god.image}",
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  static Widget _aartiOfDay(AppLocalizations loc) {
+  // 🕉️ AARTI OF THE DAY
+  Widget _aartiOfDay(AppLocalizations loc) {
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -215,7 +288,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget _aartiTile(String title) {
+  Widget _aartiTile(String title) {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 8),
@@ -227,35 +300,44 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// 🕉️ GOD CARD
+// 🕉️ BIG GOD CARD
 class _GodCard extends StatelessWidget {
   final String name;
   final String image;
 
-  const _GodCard(this.name, this.image);
+  const _GodCard({
+    required this.name,
+    required this.image,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 90,
-      margin: const EdgeInsets.only(right: 12),
+      width: 160,
+      margin: const EdgeInsets.only(right: 14),
       child: Column(
         children: [
           Card(
-            elevation: 4,
+            elevation: 6,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(18),
             ),
             clipBehavior: Clip.antiAlias,
             child: SizedBox(
-              height: 70,
-              child: Image.asset(image, fit: BoxFit.cover),
+              height: 150,
+              width: double.infinity,
+              child: Image.asset(
+                image,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             name,
+            textAlign: TextAlign.center,
             style: const TextStyle(
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Color(0xFF3A2A1A),
             ),

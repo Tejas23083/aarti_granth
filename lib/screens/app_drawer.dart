@@ -1,4 +1,9 @@
+import 'package:aarti_granth/screens/GodListScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/theme_provider.dart';
+import 'SettingsScreen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -9,40 +14,60 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: [
 
-          // 👤 PROFILE HEADER ONLY
-          DrawerHeader(
-            padding: EdgeInsets.zero, // IMPORTANT
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFFFFE8C5),
-                  Color(0xFFFFB74D),
-                ],
+          // 🔶 FULL WIDTH HEADER (FIXED)
+          SizedBox(
+            width: double.infinity,
+            height: 220,
+            child: DrawerHeader(
+              margin: EdgeInsets.zero,
+              padding: EdgeInsets.zero,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFFFE8C5),
+                    Color(0xFFFFB74D),
+                  ],
+                ),
               ),
-            ),
-            child: SizedBox(
-              width: double.infinity, // 👈 FORCE FULL WIDTH
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
+                children: [
+
+                  // 🕉️ LOGO
+                  Container(
+                    height: 80,
+                    width: 80,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.temple_hindu,
                       size: 42,
                       color: Color(0xFF3A2A1A),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    "My Profile",
+
+                  const SizedBox(height: 12),
+
+                  const Text(
+                    "AartiGranth",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF3A2A1A),
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  const Text(
+                    "आरतीग्रन्थ",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6D4C41),
                     ),
                   ),
                 ],
@@ -50,28 +75,80 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
 
-
           // 📜 MENU ITEMS
-          _drawerItem(Icons.home, "Home", () {}),
-          _drawerItem(Icons.favorite, "Favorites", () {}),
-          _drawerItem(Icons.calendar_today, "Festivals", () {}),
-          _drawerItem(Icons.settings, "Settings", () {}),
-          _drawerItem(Icons.info_outline, "About", () {}),
+          _drawerItem(
+            context,
+            icon: Icons.home_outlined,
+            title: "Home",
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+
+          _drawerItem(
+            context,
+            icon: Icons.temple_hindu_outlined,
+            title: "All Deities",
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const GodListScreen(),
+                ),
+              );
+            },
+          ),
+
+          _drawerItem(
+            context,
+            icon: Icons.settings_outlined,
+            title: "Settings",
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SettingsScreen(),
+                ),
+              );
+            },
+          ),
+
+          const Spacer(),
+
+          // 🌙 DARK MODE TOGGLE
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) {
+              return SwitchListTile(
+                value: themeProvider.themeMode == ThemeMode.dark,
+                title: const Text("Dark Mode"),
+                secondary: const Icon(Icons.dark_mode_outlined),
+                onChanged: (value) {
+                  themeProvider.toggleTheme(value);
+                },
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
   Widget _drawerItem(
-      IconData icon,
-      String title,
-      VoidCallback onTap,
-      ) {
+      BuildContext context, {
+        required IconData icon,
+        required String title,
+        required VoidCallback onTap,
+      }) {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF3A2A1A)),
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       onTap: onTap,
     );
