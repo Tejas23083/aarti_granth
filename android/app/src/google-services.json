@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1014040741091",
+    "project_id": "aartigranth",
+    "storage_bucket": "aartigranth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1014040741091:android:228cbe242b0f7eccaf31d6",
+        "android_client_info": {
+          "package_name": "com.AartiGranth.aarti_granth"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8Wwx8QXY3gK_43ybHHQTRV5-iM8wgy08"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
