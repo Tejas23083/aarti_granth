@@ -2,11 +2,8 @@ import 'dart:async';
 import 'package:aarti_granth/screens/HomeScreen.dart';
 import 'package:flutter/material.dart';
 
-import 'dart:async';
-import 'package:flutter/material.dart';
-
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -68,19 +65,10 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               Image(
-                image: AssetImage('assets/images/diya.png'),
-                width: 110,
+                image: AssetImage('assets/images/logo.png'),
+                width: 300,
               ),
               SizedBox(height: 1),
-              Text(
-                "AartiGranth",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF3A2A1A),
-                  letterSpacing: 1.1,
-                ),
-              ),
               SizedBox(height: 8),
               Text(
                 "",

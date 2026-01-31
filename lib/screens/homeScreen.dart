@@ -1,11 +1,16 @@
-import 'package:aarti_granth/screens/app_drawer.dart';
+import 'package:aarti_granth/screens/SettingsScreen.dart';
+import '../l10n/app_localizations.dart';
+import 'app_drawer.dart';
 import 'package:flutter/material.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       drawer: const AppDrawer(),
 
@@ -24,7 +29,7 @@ class HomeScreen extends StatelessWidget {
           child: CustomScrollView(
             slivers: [
 
-              // 🌟 ANIMATED APP BAR
+              // 🌟 APP BAR
               SliverAppBar(
                 pinned: true,
                 elevation: 0,
@@ -38,14 +43,26 @@ class HomeScreen extends StatelessWidget {
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.settings_outlined),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => const SettingsScreen(),
+                          transitionsBuilder: (_, animation, __, child) {
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              ).animate(animation),
+                              child: child,
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ],
 
-                // ❌ REMOVE THIS (important)
-                // title: const Text("AartiGranth"),
-
-                // ✅ KEEP ONLY THIS
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   titlePadding: const EdgeInsets.only(bottom: 12),
@@ -73,26 +90,29 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-
-              // 📦 BODY CONTENT
+              // 📦 BODY
               SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      _searchBar(),
+                      _searchBar(loc),
                       const SizedBox(height: 20),
-                      _sectionTitle("Deities"),
+
+                      _sectionTitle(loc.deities),
                       const SizedBox(height: 12),
                       _deitiesRow(),
+
                       const SizedBox(height: 20),
-                      _aartiOfDay(),
+                      _aartiOfDay(loc),
+
                       const SizedBox(height: 20),
-                      _sectionTitle("Popular Aartis"),
+                      _sectionTitle(loc.popularAartis),
                       const SizedBox(height: 10),
-                      _aartiTile("Sukhkarta Dukhaharta"),
-                      _aartiTile("Om Jai Shiv Omkara"),
-                      _aartiTile("Hanuman Chalisa"),
+
+                      _aartiTile(loc.sukhkarta),
+                      _aartiTile(loc.omJaiShiv),
+                      _aartiTile(loc.hanumanChalisa),
                     ],
                   ),
                 ),
@@ -105,19 +125,19 @@ class HomeScreen extends StatelessWidget {
   }
 
   // 🔍 SEARCH
-  static Widget _searchBar() {
+  static Widget _searchBar(AppLocalizations loc) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: TextField(
           decoration: InputDecoration(
-            hintText: "Search Aarti or God name",
+            hintText: loc.searchHint,
             border: InputBorder.none,
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
           ),
         ),
       ),
@@ -154,7 +174,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget _aartiOfDay() {
+  static Widget _aartiOfDay(AppLocalizations loc) {
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -165,14 +185,14 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Aarti of the Day",
-              style: TextStyle(fontWeight: FontWeight.w600),
+            Text(
+              loc.aartiOfDay,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 6),
-            const Text(
-              "Om Jai Jagdish Hare",
-              style: TextStyle(
+            Text(
+              loc.omJaiJagdish,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF3A2A1A),
@@ -184,9 +204,9 @@ class HomeScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFFF9800),
+                  backgroundColor: const Color(0xFFFF9800),
                 ),
-                child: const Text("Read"),
+                child: Text(loc.read),
               ),
             ),
           ],
